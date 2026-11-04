@@ -1,0 +1,39 @@
+name: Dagelijkse koersen
+
+on:
+  schedule:
+    - cron: '12 0 * * *'   # elke dag 00:12 UTC, net na de dagafsluiting van 00:00 UTC
+  workflow_dispatch:
+    inputs:
+      force_volumes:
+        description: 'Volumes nu ook bijwerken'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Koersen ophalen
+        env:
+          FORCE_VOLUMES: ${{ github.event.inputs.force_volumes }}
+        run: node fetch.mjs
+      - name: Opslaan
+        run: |
+          git config user.name "trendbot"
+          git config user.email "trendbot@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Koersen $(date -u +%F)"
+          git push
