@@ -2,7 +2,10 @@ name: Dagelijkse koersen
 
 on:
   schedule:
-    - cron: '12 0 * * *'   # elke dag 00:12 UTC, net na de dagafsluiting van 00:00 UTC
+    - cron: '12 0 * * *'   # 00:12 UTC, net na de dagafsluiting
+    - cron: '17 3 * * *'   # reserve-runs: GitHub vertraagt geplande runs soms uren
+    - cron: '23 6 * * *'
+    - cron: '29 8 * * *'
   workflow_dispatch:
     inputs:
       force_volumes:
